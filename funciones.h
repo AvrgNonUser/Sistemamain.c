@@ -1,76 +1,71 @@
 #include <stdio.h>
-#define ZONAS 5
-#define DIAS_HISTORICOS 7
+#include <string.h>
+#define max 50
+#define nom 50
 
-const char *CONTAMINANTES[4] = {"CO2", "SO2", "NO2", "PM2.5"};
-const float LIMITES[4] = {3000.0, 1000.0, 2000.0, 250.0}; 
+char producto[max][nom];
+int stock[max];
+float precio[nom];
+int Pnum = 0;
 
-
-float calcularPromedio(float *datos) {
-    float suma = 0, pesos = 0;
-    for (int i = 0; i < DIAS_HISTORICOS; i++) {
-        suma += *(datos + i) * (DIAS_HISTORICOS - i);
-        pesos += (DIAS_HISTORICOS - i);
+void Registrar() {
+    if (Pnum >= max) {
+        printf("¡¡¡Inventario lleno!!!\n");
+        return;
     }
-    return suma / pesos;
+    printf("Ingrese el nombre del producto: ");
+    gets(producto[Pnum]);
+    printf("Ingrese la cantidad: ");
+    scanf("%d", &stock[Pnum]);
+    printf("Ingrese el precio: ");
+    scanf("%f", &precio[Pnum]);
+    Pnum++;
+    printf("Producto agregado con éxito.\n");
 }
 
-// Función para generar recomendaciones
-void generarRecomendaciones(float actual, float prediccion, const char *contaminante) {
-    printf("Recomendaciones para %s:\n", contaminante);
-    if (actual > LIMITES[3] || prediccion > LIMITES[3]) {
-        printf("- Suspender actividades al aire libre.\n");
-        printf("- Aumentar campañas de reducción de emisiones.\n");
-    } else if (actual > LIMITES[0] || prediccion > LIMITES[0]) {
-        printf("- Implementar restricciones vehiculares.\n");
-        printf("- Promover el uso de transporte público y bicicletas.\n");
-    } else if (actual > LIMITES[1] || prediccion > LIMITES[1]) {
-        printf("- Regular emisiones industriales.\n");
-        printf("- Vigilar fuentes industriales.\n");
-    } else if (actual > LIMITES[2] || prediccion > LIMITES[2]) {
-        printf("- Restringir actividades de construcción.\n");
-        printf("- Promover combustibles más limpios.\n");
-    } else {
-        printf("- Mantener medidas actuales para preservar la calidad del aire.\n");
-    }
-}
-
-// Función para modificar datos
-void modificarDatos(float datosHistoricos[ZONAS][4][DIAS_HISTORICOS], float actuales[ZONAS][4]) {
-    int zona, contaminante, opcion;
-    printf("\n--- Modificar Datos ---\n");
-    printf("Seleccione la zona (1 a %d): ", ZONAS);
-    scanf("%d", &zona);
-    zona -= 1; // Ajustar índice
-
-    printf("Seleccione el contaminante:\n");
-    for (int i = 0; i < 4; i++) {
-        printf("%d. %s\n", i + 1, CONTAMINANTES[i]);
-    }
-    scanf("%d", &contaminante);
-    contaminante -= 1; // Ajustar índice
-
-    printf("¿Qué desea modificar?\n");
-    printf("1. Datos históricos\n");
-    printf("2. Datos actuales\n");
-    scanf("%d", &opcion);
-
-    if (opcion == 1) {
-        printf("Datos históricos actuales para %s en la zona %d:\n", CONTAMINANTES[contaminante], zona + 1);
-        for (int i = 0; i < DIAS_HISTORICOS; i++) {
-            printf("Día %d: %.2f\n", i + 1, datosHistoricos[zona][contaminante][i]);
+void Edit() {
+    char nombre[nom];
+    printf("Ingrese el nombre del producto a editar: ");
+    gets(nombre); 
+    for (int i = 0; i < Pnum; i++) {
+        if (strcmp(producto[i], nombre) == 0) {
+            printf("Producto encontrado.\n Ingrese nueva cantidad: ");
+            scanf("%d", &stock[i]);
+            printf("Ingrese nuevo precio: ");
+            scanf("%f", &precio[i]);
+            printf("Producto editado con éxito.\n");
+            return;
         }
-        int dia;
-        printf("Seleccione el día a modificar (1 a %d): ", DIAS_HISTORICOS);
-        scanf("%d", &dia);
-        dia -= 1; // Ajustar índice
-        printf("Ingrese el nuevo valor: ");
-        scanf("%f", &datosHistoricos[zona][contaminante][dia]);
-    } else if (opcion == 2) {
-        printf("Valor actual para %s en la zona %d: %.2f\n", CONTAMINANTES[contaminante], zona + 1, actuales[zona][contaminante]);
-        printf("Ingrese el nuevo valor: ");
-        scanf("%f", &actuales[zona][contaminante]);
-    } else {
-        printf("Opción no válida.\n");
+    }
+    printf("Producto no encontrado.\n");
+}
+
+void Borrar() {
+    char nombre[nom];
+    printf("Ingrese el nombre del producto a eliminar: ");
+    gets(nombre); 
+    for (int i = 0; i < Pnum; i++) {
+        if (strcmp(producto[i], nombre) == 0) {
+            for (int j = i; j < Pnum - 1; j++) {
+                strcpy(producto[j], producto[j + 1]);
+                stock[j] = stock[j + 1];
+                precio[j] = precio[j + 1];
+            }
+            Pnum--;
+            printf("Producto eliminado con éxito.\n");
+            return;
+        }
+    }
+    printf("Producto no encontrado.\n");
+}
+void Enliste() {
+    if (Pnum == 0) {
+        printf("¡¡¡Inventario vacio!!!\n");
+        return;
+    }
+    printf("Inventario:\n");
+    for (int i = 0; i < Pnum; i++) {
+        printf("%d. %s - Cantidad: %d - Precio: %.2f\n", i + 1, producto[i], stock[i], precio[i]);
     }
 }
+
